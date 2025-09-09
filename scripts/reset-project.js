@@ -45,6 +45,28 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
+async function ensureDirectory(directoryPath) {
+  await fs.promises.mkdir(directoryPath, { recursive: true });
+}
+
+async function safeMoveDirectory(sourcePath, destinationPath) {
+  try {
+    await ensureDirectory(path.dirname(destinationPath));
+    await fs.promises.rename(sourcePath, destinationPath);
+    return { method: "rename" };
+  } catch (error) {
+    // On Windows, EPERM/EBUSY can occur when files are in use. EXDEV when crossing devices.
+    if (["EPERM", "EBUSY", "EXDEV"].includes(error.code)) {
+      await ensureDirectory(path.dirname(destinationPath));
+      // Fallback: copy then remove
+      await fs.promises.cp(sourcePath, destinationPath, { recursive: true });
+      await fs.promises.rm(sourcePath, { recursive: true, force: true });
+      return { method: "copy+remove" };
+    }
+    throw error;
+  }
+}
+
 const moveDirectories = async (userInput) => {
   try {
     if (userInput === "y") {
@@ -57,13 +79,35 @@ const moveDirectories = async (userInput) => {
     for (const dir of oldDirs) {
       const oldDirPath = path.join(root, dir);
       if (fs.existsSync(oldDirPath)) {
+        // Avoid moving/deleting the running scripts directory to prevent EPERM on Windows
+        if (dir === "scripts") {
+          console.log(
+            "⚠️ Skipping /scripts while this reset script is running. Remove or move it manually after reset if desired."
+          );
+          continue;
+        }
+
         if (userInput === "y") {
           const newDirPath = path.join(root, exampleDir, dir);
-          await fs.promises.rename(oldDirPath, newDirPath);
-          console.log(`➡️ /${dir} moved to /${exampleDir}/${dir}.`);
+          try {
+            const result = await safeMoveDirectory(oldDirPath, newDirPath);
+            console.log(
+              `➡️ /${dir} moved to /${exampleDir}/${dir} (${result.method}).`
+            );
+          } catch (err) {
+            console.log(
+              `❌ Failed to move /${dir}: ${err.message}. You can move it manually to /${exampleDir}/${dir}.`
+            );
+          }
         } else {
-          await fs.promises.rm(oldDirPath, { recursive: true, force: true });
-          console.log(`❌ /${dir} deleted.`);
+          try {
+            await fs.promises.rm(oldDirPath, { recursive: true, force: true });
+            console.log(`❌ /${dir} deleted.`);
+          } catch (err) {
+            console.log(
+              `❌ Failed to delete /${dir}: ${err.message}. You can delete it manually.`
+            );
+          }
         }
       } else {
         console.log(`➡️ /${dir} does not exist, skipping.`);
