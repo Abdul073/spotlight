@@ -10,3 +10,13 @@ All content fits in memory: When you're displaying a small, fixed amount of cont
 Static content: For screens with predetermined, limited content like forms, profile pages, or detail views.
 Mixed content types: When you need to display different UI components in a specific layout that doesn't follow a list pattern.
 Horizontal carousel-like elements: Small horizontal scrolling components like image carousels with limited items.
+
+🚀 Pressable vs TouchableOpacity
+
+## Use Pressable when:
+
+More customization is needed: Pressable offers more customization options for different states (pressed, hovered, focused).
+Complex interaction states: When you need to handle multiple interaction states with fine-grained control.
+Future-proofing: Pressable is newer and designed to eventually replace the Touchable components.
+Platform-specific behavior: When you want to customize behavior across different platforms.
+Nested press handlers: When you need to handle nested interactive elements.
