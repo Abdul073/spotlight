@@ -22,14 +22,12 @@ type CommentsModel = {
   postId: Id<"posts">;
   visible: boolean;
   onClose: () => void;
-  onCommentAdded: () => void;
 };
 
 export default function CommentsModel({
   postId,
   visible,
   onClose,
-  onCommentAdded,
 }: CommentsModel) {
   const [newComment, setNewComment] = useState("");
   const comments = useQuery(api.comments.getComments, { postId });
@@ -45,7 +43,6 @@ export default function CommentsModel({
       });
 
       setNewComment("");
-      onCommentAdded();
     } catch (error) {
       console.log("Error adding comment:", error);
     }

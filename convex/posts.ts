@@ -194,7 +194,7 @@ export const deletePost = mutation({
   },
 });
 
-export const getPostByUser = query({
+export const getPostsByUser = query({
   args: {
     userId: v.optional(v.id("users")),
   },

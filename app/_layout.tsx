@@ -1,8 +1,10 @@
 import InitialLayout from "@/components/InitialLayout";
 import ClerkAndConvecProvider from "@/providers/ClerkAndConvecProvider";
 import { useFonts } from "expo-font";
+import * as NavigationBar from "expo-navigation-bar";
 import { SplashScreen } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
+import { Platform } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
@@ -21,6 +23,14 @@ export default function RootLayout() {
   const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded) await SplashScreen.hideAsync();
   }, [fontsLoaded]);
+
+  //update the native navigation bar on android
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      NavigationBar.setBackgroundColorAsync("#000000");
+      NavigationBar.setButtonStyleAsync("light");
+    }
+  }, []);
   return (
     <ClerkAndConvecProvider>
       <SafeAreaProvider>

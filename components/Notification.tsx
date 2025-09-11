@@ -1,16 +1,17 @@
 import { COLORS } from "@/constants/theme";
 import { styles } from "@/styles/notification.styles";
+
 import { Ionicons } from "@expo/vector-icons";
 import { formatDistanceToNow } from "date-fns";
 import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 
-export default function NotificationItem({ notification }: any) {
+export default function Notification({ notification }: any) {
   return (
     <View style={styles.notificationItem}>
       <View style={styles.notificationContent}>
-        <Link href={`/(tabs)/notification`} asChild>
+        <Link href={`/user/${notification.sender._id}`} asChild>
           <TouchableOpacity style={styles.avatarContainer}>
             <Image
               source={notification.sender.image}
@@ -31,7 +32,7 @@ export default function NotificationItem({ notification }: any) {
         </Link>
 
         <View style={styles.notificationInfo}>
-          <Link href={`/(tabs)/notification`} asChild>
+          <Link href={`/user/${notification.sender._id}`} asChild>
             <TouchableOpacity>
               <Text style={styles.username}>
                 {notification.sender.username}
