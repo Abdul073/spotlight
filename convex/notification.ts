@@ -14,12 +14,13 @@ export const getNotification = query({
     const notificationWithInfo = await Promise.all(
       notification.map(async (notification) => {
         const sender = (await ctx.db.get(notification.senderId))!;
-        let post = null;
-        let comment = null;
-
-        if (notification.type === "comment" && notification.commentId) {
-          comment = await ctx.db.get(notification.commentId);
-        }
+        const post = notification.postId
+          ? await ctx.db.get(notification.postId)
+          : null;
+        const commentDoc =
+          notification.type === "comment" && notification.commentId
+            ? await ctx.db.get(notification.commentId)
+            : null;
 
         return {
           ...notification,
@@ -29,7 +30,7 @@ export const getNotification = query({
             image: sender.image,
           },
           post,
-          comment: comment?.content,
+          comment: commentDoc?.content,
         };
       })
     );
